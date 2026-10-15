@@ -1,5 +1,5 @@
 // Add your API endpoint here
-var API_ENDPOINT = "API_ENDPOIND_PASTE_HERE";
+var API_ENDPOINT = "https://odytbdyge5.execute-api.us-east-1.amazonaws.com/Dev";
 
 // AJAX POST request to save student data
 document.getElementById("savestudent").onclick = function(){
@@ -24,14 +24,14 @@ document.getElementById("savestudent").onclick = function(){
 }
 
 // AJAX GET request to retrieve all students
-document.getElementById("getstudents").onclick = function(){  
+document.getElementById("getstudents").onclick = function(){
     $.ajax({
         url: API_ENDPOINT,
         type: 'GET',
         contentType: 'application/json; charset=utf-8',
         success: function (response) {
             $('#studentTable tr').slice(1).remove();
-            jQuery.each(response, function(i, data) {          
+            jQuery.each(response, function(i, data) {
                 $("#studentTable").append("<tr> \
                     <td>" + data['studentid'] + "</td> \
                     <td>" + data['name'] + "</td> \
