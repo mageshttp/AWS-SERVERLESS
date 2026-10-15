@@ -1,31 +1,42 @@
 import json
 import boto3
 
-# Create a DynamoDB object using the AWS SDK
 dynamodb = boto3.resource('dynamodb')
-# Use the DynamoDB object to select our table
 table = dynamodb.Table('studentData')
 
-# Define the handler function that the Lambda service will use as an entry point
 def lambda_handler(event, context):
-    # Extract values from the event object we got from the Lambda service and store in variables
-    student_id = event['studentid']
-    name = event['name']
-    student_class = event['class']
-    age = event['age']
-    
-    # Write student data to the DynamoDB table and save the response in a variable
-    response = table.put_item(
-        Item={
-            'studentid': student_id,
-            'name': name,
-            'class': student_class,
-            'age': age
-        }
-    )
-    
-    # Return a properly formatted JSON object
+    try:
+        # Read body from proxy integration
+        body = json.loads(event['body'])
+
+        studentid = body.get('studentid')
+        name      = body.get('name')
+        course    = body.get('course')
+        email     = body.get('email')
+
+        if not studentid:
+            return response(400, {'message': 'studentid is required'})
+
+        table.put_item(Item={
+            'studentid': studentid,
+            'name':      name,
+            'course':    course,
+            'email':     email
+        })
+
+        return response(200, {'message': 'Student data inserted successfully'})
+
+    except Exception as e:
+        return response(500, {'message': str(e)})
+
+
+def response(status_code, body):
     return {
-        'statusCode': 200,
-        'body': json.dumps('Student data saved successfully!')
+        'statusCode': status_code,
+        'headers': {
+            'Access-Control-Allow-Origin':  '*',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+        },
+        'body': json.dumps(body)
     }
